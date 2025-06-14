@@ -1,0 +1,7 @@
+POST https://login-kql-a7dbhbbdb0heaubq.canadacentral-01.azurewebsites.net/login
+Content-Type: application/json
+
+{
+    "username": "michaelafdsa", 
+    "password": "1234"
+}
