@@ -1,70 +1,87 @@
+📁 app.py
+python
+Copy
+Edit
 from flask import Flask, request, jsonify
+from datetime import datetime
 import requests
-import json
-import datetime
 import hashlib
 import hmac
 import base64
-import os
+import json
+import time
 
 app = Flask(__name__)
 
-# Replace with your actual Log Analytics workspace ID and key
-LOG_ANALYTICS_WORKSPACE_ID = os.environ.get("LOG_ANALYTICS_WORKSPACE_ID")
-LOG_ANALYTICS_SHARED_KEY = os.environ.get("LOG_ANALYTICS_SHARED_KEY")
-LOG_ANALYTICS_LOG_TYPE = "LoginLogs"
+# In-memory store for failed login attempts (per IP)
+failed_logins = {}
 
+# Replace with your Azure Log Analytics workspace info
+WORKSPACE_ID = "<YOUR_WORKSPACE_ID>"
+SHARED_KEY = "<YOUR_PRIMARY_KEY>"
+LOG_TYPE = "LoginAttempts"
+
+# --- Helper function to build authorization header ---
 def build_signature(date, content_length, method, content_type, resource):
     x_headers = f'x-ms-date:{date}'
-    string_to_hash = f"{method}\n{str(content_length)}\n{content_type}\n{x_headers}\n{resource}"
+    string_to_hash = f"{method}\n{content_length}\n{content_type}\n{x_headers}\n{resource}"
     bytes_to_hash = bytes(string_to_hash, encoding="utf-8")
-    decoded_key = base64.b64decode(LOG_ANALYTICS_SHARED_KEY)
-    encoded_hash = base64.b64encode(
-        hmac.new(decoded_key, bytes_to_hash, digestmod=hashlib.sha256).digest()
-    ).decode()
-    return f"SharedKey {LOG_ANALYTICS_WORKSPACE_ID}:{encoded_hash}"
+    decoded_key = base64.b64decode(SHARED_KEY)
+    encoded_hash = hmac.new(decoded_key, bytes_to_hash, digestmod=hashlib.sha256).digest()
+    return f"SharedKey {WORKSPACE_ID}:{base64.b64encode(encoded_hash).decode()}"
 
-def send_to_log_analytics(log_data):
-    json_data = json.dumps(log_data)
-    rfc1123date = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
-    content_length = len(json_data)
-    method = 'POST'
-    content_type = 'application/json'
-    resource = f'/api/logs'
+# --- Send log entry to Azure Log Analytics ---
+def send_log(data):
+    body = json.dumps([data])
+    content_length = len(body)
+    rfc1123date = datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+    signature = build_signature(rfc1123date, content_length, 'POST', 'application/json', f'/api/logs')
 
-    signature = build_signature(rfc1123date, content_length, method, content_type, resource)
-
-    uri = f"https://{LOG_ANALYTICS_WORKSPACE_ID}.ods.opinsights.azure.com{resource}?api-version=2016-04-01"
-
+    uri = f'https://{WORKSPACE_ID}.ods.opinsights.azure.com/api/logs?api-version=2016-04-01'
     headers = {
-        'Content-Type': content_type,
+        'Content-Type': 'application/json',
         'Authorization': signature,
-        'Log-Type': LOG_ANALYTICS_LOG_TYPE,
+        'Log-Type': LOG_TYPE,
         'x-ms-date': rfc1123date
     }
 
-    response = requests.post(uri, data=json_data, headers=headers)
-    response.raise_for_status()  # raise error if not successful
+    response = requests.post(uri, data=body, headers=headers)
     return response.status_code
 
+# --- Flask /login route ---
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    username = data.get('username')
-    ip_address = request.remote_addr
+    ip = request.remote_addr
+    username = request.form.get('username')
+    password = request.form.get('password')
 
-    # Log the attempt
-    log_entry = {
-        "Username": username,
-        "IPAddress": ip_address,
-        "Timestamp": datetime.datetime.utcnow().isoformat() + "Z"
+    # Dummy check — replace with real auth
+    if username != "admin" or password != "password123":
+        failed_logins[ip] = failed_logins.get(ip, 0) + 1
+
+        log_data = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "ip": ip,
+            "username": username,
+            "status": "failed",
+            "attempts": failed_logins[ip]
+        }
+        send_log(log_data)
+
+        return jsonify({"success": False, "message": "Invalid credentials."}), 401
+
+    # On successful login
+    log_data = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "ip": ip,
+        "username": username,
+        "status": "success",
+        "attempts": failed_logins.get(ip, 0)
     }
+    send_log(log_data)
+    failed_logins[ip] = 0  # reset on success
 
-    try:
-        send_to_log_analytics(log_entry)
-        return jsonify({"message": "Login logged"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    return jsonify({"success": True, "message": "Logged in successfully."})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
