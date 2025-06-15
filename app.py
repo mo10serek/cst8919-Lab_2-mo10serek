@@ -31,16 +31,14 @@ def build_signature(date, content_length, method, content_type, resource):
 # --- Send log entry to Azure Log Analytics ---
 def send_log(log_data):
     body = json.dumps(log_data)
-    rfc1123date = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
-    signature = build_signature(rfc1123date, len(body), 'POST', 'application/json', '/api/logs')
+    signature = build_signature(len(body), 'POST', 'application/json', '/api/logs')
 
     uri = f'https://{WORKSPACE_ID}.ods.opinsights.azure.com/api/logs?api-version=2016-04-01'
 
     headers = {
         'Content-Type': 'application/json',
         'Authorization': signature,
-        'Log-Type': LOG_TYPE,
-        'x-ms-date': rfc1123date
+        'Log-Type': LOG_TYPE
     }
 
     response = requests.post(uri, data=body, headers=headers)
