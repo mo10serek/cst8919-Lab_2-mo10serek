@@ -1,7 +1,3 @@
-app.py
-python
-Copy
-Edit
 from flask import Flask, request, jsonify
 from datetime import datetime
 import requests
