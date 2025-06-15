@@ -47,24 +47,31 @@ def send_log(data):
 # --- Flask /login route ---
 @app.route('/login', methods=['POST'])
 def login():
-    try:
-        # Parse JSON from request body
-        data = request.get_json()
-        username = data.get('username')
-        password = data.get('password')
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    success = False
 
-        print("Username:", username)
-        print("Password:", password)
+    if username == "mo10serek" and password == "mX10baz3m":
+        success = True
+        result = {"message": "Login successful"}
+        status = 200
+    else:
+        result = {"message": "Invalid credentials"}
+        status = 401
 
-        # Dummy check (replace with your own logic)
-        if username == "mo10serek" and password == "mX10baz3m":
-            return jsonify({"message": "Login successful"}), 200
-        else:
-            return jsonify({"message": "Invalid credentials"}), 401
+    # Create and send log
+    log_entry = {
+        "username": username,
+        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "success": success,
+        "ip": request.remote_addr,
+        "user_agent": request.headers.get('User-Agent')
+    }
 
-    except Exception as e:
-        print("Login error:", e)
-        return jsonify({"error": "Bad request"}), 400
+    send_log(log_entry)
+
+    return jsonify(result), status
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
