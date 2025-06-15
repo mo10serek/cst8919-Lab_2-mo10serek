@@ -63,7 +63,6 @@ def login():
     # Create and send log
     log_entry = {
         "username": username,
-        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
         "success": success,
         "ip": request.remote_addr,
         "user_agent": request.headers.get('User-Agent')
