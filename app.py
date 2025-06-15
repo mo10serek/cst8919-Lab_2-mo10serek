@@ -52,6 +52,8 @@ def login():
     password = request.form.get('password')
 
     # Dummy check — replace with real auth
+
+    return jsonify({"username": username, "password": password})
     if username == "mo10serek" or password == "mX10baz3m":
         # On successful login
         log_data = {
