@@ -20,20 +20,22 @@ LOG_TYPE = "LoginAttempts"
 # --- Helper function to build authorization header ---
 def build_signature(date, content_length, method, content_type, resource):
     x_headers = f'x-ms-date:{date}'
-    string_to_hash = f"{method}\n{content_length}\n{content_type}\n{x_headers}\n{resource}"
-    bytes_to_hash = bytes(string_to_hash, encoding="utf-8")
+    string_to_hash = f'{method}\n{content_length}\n{content_type}\n{x_headers}\n{resource}'
+    bytes_to_hash = bytes(string_to_hash, encoding='utf-8')
     decoded_key = base64.b64decode(SHARED_KEY)
-    encoded_hash = hmac.new(decoded_key, bytes_to_hash, digestmod=hashlib.sha256).digest()
-    return f"SharedKey {WORKSPACE_ID}:{base64.b64encode(encoded_hash).decode()}"
+    encoded_hash = base64.b64encode(
+        hmac.new(decoded_key, bytes_to_hash, digestmod=hashlib.sha256).digest()
+    ).decode()
+    return f'SharedKey {WORKSPACE_ID}:{encoded_hash}'
 
 # --- Send log entry to Azure Log Analytics ---
-def send_log(data):
-    body = json.dumps([data])
-    content_length = len(body)
-    rfc1123date = datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
-    signature = build_signature(rfc1123date, content_length, 'POST', 'application/json', f'/api/logs')
+def send_log(log_data):
+    body = json.dumps(log_data)
+    rfc1123date = datetime.datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+    signature = build_signature(rfc1123date, len(body), 'POST', 'application/json', '/api/logs')
 
     uri = f'https://{WORKSPACE_ID}.ods.opinsights.azure.com/api/logs?api-version=2016-04-01'
+
     headers = {
         'Content-Type': 'application/json',
         'Authorization': signature,
@@ -42,7 +44,7 @@ def send_log(data):
     }
 
     response = requests.post(uri, data=body, headers=headers)
-    return response.status_code
+    print("Log sent:", response.status_code, response.text)
 
 # --- Flask /login route ---
 @app.route('/login', methods=['POST'])
