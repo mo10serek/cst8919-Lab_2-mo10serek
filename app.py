@@ -1,4 +1,4 @@
-📁 app.py
+app.py
 python
 Copy
 Edit
