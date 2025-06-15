@@ -47,39 +47,24 @@ def send_log(data):
 # --- Flask /login route ---
 @app.route('/login', methods=['POST'])
 def login():
-    ip = request.remote_addr
-    username = request.form.get('username')
-    password = request.form.get('password')
+    try:
+        # Parse JSON from request body
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
 
-    # Dummy check — replace with real auth
+        print("Username:", username)
+        print("Password:", password)
 
-    return jsonify({"username": username, "password": password})
-    if username == "mo10serek" or password == "mX10baz3m":
-        # On successful login
-        log_data = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "ip": ip,
-            "username": username,
-            "status": "success",
-            "attempts": failed_logins.get(ip, 0)
-        }
-        send_log(log_data)
-        failed_logins[ip] = 0  # reset on success
+        # Dummy check (replace with your own logic)
+        if username == "mo10serek" and password == "mX10baz3m":
+            return jsonify({"message": "Login successful"}), 200
+        else:
+            return jsonify({"message": "Invalid credentials"}), 401
 
-        return jsonify({"success": True, "message": "Logged in successfully."})
-
-    failed_logins[ip] = failed_logins.get(ip, 0) + 1
-
-    log_data = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "ip": ip,
-        "username": username,
-        "status": "failed",
-        "attempts": failed_logins[ip]
-    }
-    send_log(log_data)
-
-    return jsonify({"success": False, "message": "Invalid credentials."})
+    except Exception as e:
+        print("Login error:", e)
+        return jsonify({"error": "Bad request"}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
