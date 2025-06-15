@@ -52,32 +52,32 @@ def login():
     password = request.form.get('password')
 
     # Dummy check — replace with real auth
-    if username != "mo10serek" or password != "mX10baz3m":
-        failed_logins[ip] = failed_logins.get(ip, 0) + 1
-
+    if username == "mo10serek" or password == "mX10baz3m":
+        # On successful login
         log_data = {
             "timestamp": datetime.utcnow().isoformat(),
             "ip": ip,
             "username": username,
-            "status": "failed",
-            "attempts": failed_logins[ip]
+            "status": "success",
+            "attempts": failed_logins.get(ip, 0)
         }
         send_log(log_data)
+        failed_logins[ip] = 0  # reset on success
 
-        return jsonify({"success": False, "message": "Invalid credentials."}), 401
+        return jsonify({"success": True, "message": "Logged in successfully."})
 
-    # On successful login
+    failed_logins[ip] = failed_logins.get(ip, 0) + 1
+
     log_data = {
         "timestamp": datetime.utcnow().isoformat(),
         "ip": ip,
         "username": username,
-        "status": "success",
-        "attempts": failed_logins.get(ip, 0)
+        "status": "failed",
+        "attempts": failed_logins[ip]
     }
     send_log(log_data)
-    failed_logins[ip] = 0  # reset on success
 
-    return jsonify({"success": True, "message": "Logged in successfully."})
+    return jsonify({"success": False, "message": "Invalid credentials."})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
