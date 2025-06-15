@@ -18,7 +18,7 @@ SHARED_KEY = "OeBD8H/8+kdJCUOT3sepqausRYY5QCakFolyl9f/ZXuGrPSkjA7soFFrNu3vsxWVcr
 LOG_TYPE = "LoginAttempts"
 
 # --- Helper function to build authorization header ---
-def build_signature(date, content_length, method, content_type, resource):
+def build_signature(content_length, method, content_type, resource):
     x_headers = f'x-ms-date:{date}'
     string_to_hash = f'{method}\n{content_length}\n{content_type}\n{x_headers}\n{resource}'
     bytes_to_hash = bytes(string_to_hash, encoding='utf-8')
