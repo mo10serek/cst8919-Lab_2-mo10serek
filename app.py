@@ -52,7 +52,7 @@ def login():
     password = request.form.get('password')
 
     # Dummy check — replace with real auth
-    if username != "admin" or password != "password123":
+    if username != "mo10serek" or password != "mX10baz3m":
         failed_logins[ip] = failed_logins.get(ip, 0) + 1
 
         log_data = {
