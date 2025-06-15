@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python app to Azure Web App - login-kql
+name: Build and deploy Python app to Azure Web App - loginkql
 
 on:
   push:
@@ -68,14 +68,14 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_618F8FFE209D4816A9AF7AD0A957C714 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_2975AA0A25A54E2BBB31440D8D521D4E }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B755C35557D14FFCAF8857EC619CC4B2 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_6DB74E6697394CFBAD855F0BE896E79F }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_7A52A4EF380244F5BE8093121F2041E4 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_9DE4FFFACA1B4333899928A4D234021F }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'login-kql'
+          app-name: 'loginkql'
           slot-name: 'Production'
           
