@@ -19,8 +19,7 @@ LOG_TYPE = "LoginAttempts"
 
 # --- Helper function to build authorization header ---
 def build_signature(content_length, method, content_type, resource):
-    x_headers = f'x-ms-date:{date}'
-    string_to_hash = f'{method}\n{content_length}\n{content_type}\n{x_headers}\n{resource}'
+    string_to_hash = f'{method}\n{content_length}\n{content_type}\n{resource}'
     bytes_to_hash = bytes(string_to_hash, encoding='utf-8')
     decoded_key = base64.b64decode(SHARED_KEY)
     encoded_hash = base64.b64encode(
