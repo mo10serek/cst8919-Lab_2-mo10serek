@@ -1,7 +1,7 @@
-POST https://login-kql-a7dbhbbdb0heaubq.canadacentral-01.azurewebsites.net/login
+POST https://loginkql-fyf3exgdbeh9b3gm.canadacentral-01.azurewebsites.net/login
 Content-Type: application/json
 
 {
     "username": "mo10serek", 
-    "password": "mX10baz3masdfasd"
+    "password": "mX10baz3m"
 }

@@ -13,8 +13,8 @@ app = Flask(__name__)
 failed_logins = {}
 
 # Replace with your Azure Log Analytics workspace info
-WORKSPACE_ID = "ccd6d987-010d-48ae-a441-a66930d65ac0"
-SHARED_KEY = "OeBD8H/8+kdJCUOT3sepqausRYY5QCakFolyl9f/ZXuGrPSkjA7soFFrNu3vsxWVcrzeUOj0S+DD5NPDUx6JtQ=="
+WORKSPACE_ID = "6427a9ec-cd12-4966-81e9-0dac7b4bbdac"
+SHARED_KEY = "Cyr0Dspj7xPlyXTwFhH0R924nDSX73DaItL2wTPxBibzsPHq4Ex3FCTDuyd06CrVQ9NP0hrxdzD+lp1KQq/FNg=="
 LOG_TYPE = "LoginAttempts"
 
 # --- Helper function to build authorization header ---
