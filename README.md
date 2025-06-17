@@ -22,4 +22,4 @@ The final line is sorted by time generated and description columns.
 
 # Link for demo
 
-(detecting failed login attempts)[https://youtu.be/8ddCcPMUrzU]
+[detecting failed login attempts](https://youtu.be/8ddCcPMUrzU).
