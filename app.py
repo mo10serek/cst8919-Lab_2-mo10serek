@@ -51,7 +51,7 @@ def login():
     password = data.get('password')
     success = False
 
-    if username == "mo10serek" and password == "mX10baz3m":
+    if username == "mo10serek" and password == "mX10baz3":
         success = True
         result = {"message": "Login successful"}
         status = 200
